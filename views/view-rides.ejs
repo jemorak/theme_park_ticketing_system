@@ -1,0 +1,21 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rides</title>
+</head>
+<body>
+    <!-- Include navbar partial -->
+    <%- include('partials/navbar.html') %>
+
+    <h1>List of Rides</h1>
+
+<% for (let i = 0; i < rides.length; i++)
+    {%>
+        <h3><%= rides[i].name %></h3>
+        <p>Fast-Track Price: £<%= rides[i].price %></p>
+<% } %>
+</body>
+</html>

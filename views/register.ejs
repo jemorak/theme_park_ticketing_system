@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<h1>Register a new account!</h1>
+<form id="register-form"  class="register-user-form" method="post" >	
+	<fieldset class="register-user-form-area">	   
+		<label for="email">Email Address</label>	   
+		<input id="email" autocomplete="email" name="email" required type="text"></input>	
+	</fieldset>	
+	<fieldset class="register-user-form-area">	   
+		<label for="password">Password</label>  
+		<input id="password" autocomplete="current-password" minlength="6" name="password" required type="password"></input>	   
+		<p>Password must be at least 6 characters</p>	
+	</fieldset>	
+		<input id="register"  type="submit" value="Register"></input>
+</form>
+<script src="../public/js/register-script.js" type="module"></script>

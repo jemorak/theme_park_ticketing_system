@@ -1,0 +1,49 @@
+
+<%- include('partials/user_nav.html') %>
+<h1>Buy your ticket!</h1>
+
+<form action="/rides/ticket-order" method="post">
+    <h2>Standard Ticket</h2>
+    <p>Price: £<%= ticketCost %></p>
+    <section>
+        <h3>Select Date</h3>
+        <label for="date"><p>Date: </p></label>
+        <input type="date" name="date" id="date">
+    </section>
+    <section>
+        <% for (let i = 0; i < rides.length; i++)
+        {%>
+            <section>
+                <label for="<%= rides[i].name %>">
+                    <p><strong><%= rides[i].name %></strong></p>
+                    <p>Fast-Track Price: £<%= rides[i].price %></p>
+                </label>
+                <input type="checkbox" class="rides" name="ride[<%= rides[i]._id %>]" data-price="<%= rides[i].price %>"value="<%= rides[i].name %>" id="id[]">
+            </section>
+        <% } %>
+    </section>
+    <p>Total Price: £<output id="total-price"><%=ticketCost %></output></p>
+   
+    <input type="submit" value="Next">
+</form>
+
+
+<script>
+    const ticketCost = parseInt('<%= ticketCost %>');
+    const checkboxes = document.querySelectorAll('.rides');
+   
+    checkboxes.forEach(function(checkbox) {
+        checkbox.addEventListener('change', function() {
+            let totalPrice =  ticketCost;
+            checkboxes.forEach(function(cb){
+                if (cb.checked) {
+                    totalPrice+= parseInt(cb.getAttribute('data-price'));
+                }
+            });        
+            document.getElementById('total-price').textContent = totalPrice;
+        });
+
+    });
+
+
+</script>

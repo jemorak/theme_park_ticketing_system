@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+
+
+<body>
+    <%- include('partials/user_nav.html') %>
+        <div>
+            <h1>List of tickets</h1>
+
+            <div>
+                <h2>Today</h2>
+                <div>
+                    <% if(today===undefined ) { %>
+                        <% console.log(today) %>
+                            <p>No tickets for today</p>
+                            <% } else { %>
+
+                                <p>Date: <%= today.date %>
+                                </p>
+                                <h3>Fast track rides</h3>
+                                <% if(today.ticket===undefined || today.ticket.length===0) { %>
+                                    <p>No fast track rides selected</p>
+                                    <% } else { %>
+                                        <% for (let i=0; i < today.ticket.length; i++) { %>
+                                            <ul>
+                                                <% if (today.ticket[i].used===true) { %>
+                                                    <li>
+                                                       
+                                                        <%= today.ticket[i].name %>
+                                                    </li>                                   
+                                                    <li>Status: Ticket has been used</li>
+                                                    <% } else { %>
+                                                        <li>ticket id <%= today.ticket[i].id %>  </li>
+                                                        <form id="edit"
+                                                            action="/rides/use-ticket/<%= today.ticket[i].id %>"
+                                                            method="post">
+                                                            <input type=hidden name="id" value="<%= today._id %>">
+                                                            <li>
+                                                                <%= today.ticket[i].name %> <button type="submit">Use</button>
+                                                            </li>
+                                                        </form>
+                                                        <% } %>
+
+
+                                            </ul>
+                                            <% } %>
+                                                <% } %>
+                                                    <% } %>
+                </div>
+            </div>
+            <div>
+                <h3>------------------------------</h3>
+            </div>
+            <div>
+                <h2>Upcoming Tickets</h2>
+                <div>
+                    <% for (let i=0; i < upcoming.length; i++) { %>
+                        <div>
+                            <p>Date: <%= upcoming[i].date %>
+                            </p>
+                            <h3>Fast track rides</h3>
+                            <% if (upcoming[i].ticket.length===0) { %>
+                                <p>No fast track rides selected</p>
+                                <% } else { %>
+                                    <% for (let j=0; j < upcoming[i].ticket.length; j++) { %>
+                                        <ul>
+                                            <li>
+                                                <%= upcoming[i].ticket[j].name %>
+                                            </li>
+                                            <ul>
+                                                <li>Price: £<%= upcoming[i].ticket[j].price %>
+                                                </li>
+                                                <li>Used: <%= upcoming[i].ticket[j].used %>
+                                                </li>
+                                            </ul>
+                                        </ul>
+                                        <% } %>
+                                            <% } %>
+                        </div>
+                        <p>Ticket Price: £<%= upcoming[i].totalCost %>
+                        </p>
+                        <form id="edit" action="/rides/edit-ticket/<%= upcoming[i]._id %>" method="post">
+                            <button type="submit">Edit</button>
+                        </form>
+                        <div>
+                            <h3>------------------------------</h3>
+                        </div>
+                        <% } %>
+                </div>
+            </div>
+            <div>
+                <h2>Past tickets</h2>
+                <div>
+                    <% if(past.length===0 ) { %>
+                        <p>No past tickets</p>
+                        <% } else { %>
+                            <% for (let i=0; i < past.length; i++) { %>
+                                <div>
+                                    <p>Date: <%= past[i].date %>
+                                    </p>
+                                    <h3>Fast track rides</h3>
+                                    <% if (past[i].ticket.length===0) { %>
+                                        <p>No fast track rides selected</p>
+                                        <% } else { %>
+                                            <% for (let j=0; j < past[i].ticket.length; j++) { %>
+                                                <ul>
+                                                    <li>
+                                                        <%= past[i].ticket[j].name %>
+                                                    </li>
+                                                    <ul>
+                                                        <li>Price: £<%= past[i].ticket[j].price %>
+                                                        </li>
+                                                        <li>Used: <%= past[i].ticket[j].used %>
+                                                        </li>
+                                                    </ul>
+                                                </ul>
+                                                <% } %>
+                                                    <% } %>
+                                </div>
+                                <p>Ticket Price: £<%= past[i].totalCost %>
+                                </p>
+                                <div>
+                                    <h3>------------------------------</h3>
+                                </div>
+                                <% } %>
+                                    <% } %>
+                </div>
+            </div>
+        </div>
+</body>
+
+</html>

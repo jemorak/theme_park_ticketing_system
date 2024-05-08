@@ -1,0 +1,27 @@
+
+<h2>Current Ticket</h2>
+<p>Standard Ticket</p>
+
+<form action="/rides/complete-order" method="post">
+
+    <p><strong>Ticket Price:</strong> £<%= ticketCost %></p>
+    <p><strong>Fast Track Price:</strong> £<%= fastTrackCost %></p>
+    <p><strong>Date:</strong><%= date %></p>
+    <input type="hidden" name="date" value="<%= date %>">
+    <br>
+    <h2>Fast-Track Rides</h2>
+    <ul>
+        <% for (let i=0; i < rides.length; i++) {%>      
+            <input type="hidden" name="ticket[<%= i %>][id]" value="<%= rides[i].id %>">
+            <input type="hidden" name="ticket[<%= i %>][name]" value="<%= rides[i].name %>">
+            <input type="hidden" name="ticket[<%= i %>][price]" value="<%= rides[i].price %>">
+            <input type="hidden" name="ticket[<%= i %>][used]" value= "<%= rides[i].used %>"> 
+            <li>
+                <%= rides[i].name %> - £<%=prices[i]%>
+            </li>
+        <% } %>
+    </ul>
+    <input type="hidden" name="totalCost" value="<%= totalCost %>">
+    <p>Total Cost: £<%= totalCost %> :</p>
+    <input type="submit" value="Buy">
+</form>

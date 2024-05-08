@@ -1,0 +1,23 @@
+
+<h2>Current Ticket</h2>
+<p>Standard Ticket</p>
+<p>Price: £<%= ticketCost %></p>
+<p>Date: <%= date %></p>
+<p>Fast-Track Rides</p>
+
+
+<form action="/rides/add-rides" method="post">
+    <section>
+        <% for (let i = 0; i < rides.length; i++)
+        {%>
+            <section>
+                <label for="<%= rides[i].name %>">
+                    <h3><%= rides[i].name %></h3>
+                    <p>Fast-Track Price: £<%= rides[i].price %></p>
+                </label>
+                <input type="checkbox" name="<%= rides[i].name %>" id="id[]">
+            </section>
+        <% } %>
+    </section>
+    <input type="submit" value="Add Rides">
+</form>
