@@ -242,9 +242,7 @@ router.get("/view-tickets", allowed, async (req, res, next) => {
         console.log(tickets);
         let todayTicket;
         
-        //let upcomingTickets = await tickets.find({ date: { $gt: formattedDate } }).toArray();
-        
-       // let pastTickets = await tickets.find({ date: { $lt: formattedDate } }).toArray();
+
 
        let upcomingTickets = tickets.filter(ticket => ticket.date > formattedDate);
         let pastTickets = tickets.filter(ticket => ticket.date < formattedDate);
@@ -279,10 +277,10 @@ router.post('/logout', (req, res) => {//route for sign out
 
     })
         .then(() => {//if the refresh token is revoked
-            res.redirect("/users/login"); //redirects to the sign in page
+            res.redirect("/users/session-login"); //redirects to the sign in page
         })
         .catch((error) => {
-            res.redirect("/users/login");//redirects to the sign in page an error occurs
+            res.redirect("/users/session-login");//redirects to the sign in page an error occurs
         });
 });
 

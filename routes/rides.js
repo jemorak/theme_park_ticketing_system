@@ -108,59 +108,7 @@ router.post('/complete-order', async (req, res) => {
     }
 });
 
-router.get("/orders/:orderId", async (req, res, next) => {
-    let collection = await db.collection("Tickets");
-    let rides = await db.collection("Rides");
-    let findId = new ObjectId(req.params.orderId);
-    console.log(req.params.orderId);
 
-    try {
-        let result = await collection.findOne({ "_id": findId });
-
-        if (!result) {
-            res.send("Ticket not found");
-        } else {
-            console.log(result);
-            res.render("ticket", { ticket: result });
-        }
-    } catch (error) {
-        console.error("Error occured while trying to view the ticket: ", error);
-        res.status(500).send("Error occurred while processing the request.");
-        next(error);
-    }
-});
-
-router.get("/view-tickets", async (req, res, next) => {
-    let collection = await db.collection("Tickets");
-    let tickets = await collection.find({}).toArray();
-    let todayDate = new Date();
-    const formattedDate = formatDate(todayDate);
-
-
-    function formatDate(date) {
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        return `${year}-${month}-${day}`;
-    }
-
-    let todayTicket;
-    let upcomingTickets = await collection.find({ date: { $gt: formattedDate } }).toArray();
-    let pastTickets = await collection.find({ date: { $lt: formattedDate } }).toArray();
-
-
-    for (let i = 0; i < tickets.length; i++) {
-
-        if (tickets[i].date == formattedDate) {
-            todayTicket = tickets[i];
-        }
-    }
-
-    upcomingTickets = upcomingTickets.sort((a, b) => new Date(a.date) - new Date(b.date));
-    pastTickets = pastTickets.sort((a, b) => new Date(a.date) - new Date(b.date));
-
-    res.render("view-tickets", { today: todayTicket, upcoming: upcomingTickets, past: pastTickets });
-});
 
 router.post("/edit-ticket/:ticketId", async (req, res, next) => {
 
@@ -243,7 +191,7 @@ router.post("/update-ticket/:ticketId", async (req, res, next) => {
 
 
         // let result = await collection.updateOne({ "_id": findId }, updateDoc);
-        res.send("Ticket has been updated");
+        res.redirect("/users/view-tickets");
     } catch (error) {
         console.error("There was an issue trying to update the ticket:", error);
         res.status(500).send("Error occurred while processing the request.");
