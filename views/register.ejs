@@ -12,4 +12,86 @@
 	</fieldset>	
 		<input id="register"  type="submit" value="Register"></input>
 </form>
-<script src="../public/js/register-script.js" type="module"></script>
+
+<script type="module">
+	'use strict'
+
+	import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+	import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+
+
+	const domEmail = document.getElementById("email");
+	const domError = document.getElementById("error");
+	const domForm = document.getElementById("register-form");
+	const domPassword = document.getElementById("password");
+	const domSubmit = document.getElementById("register");
+
+	const firebaseCfg = {
+		apiKey: "AIzaSyBfLAagqttK3tLwoMeWAs5ZKCn1JREMzto",
+		authDomain: "ssp-rides.firebaseapp.com",
+		projectId: "ssp-rides",
+		storageBucket: "ssp-rides.appspot.com",
+		messagingSenderId: "1062116643752",
+		appId: "1:1062116643752:web:888463cf59ab298b63439d",
+		measurementId: "G-KB245HTLWC"
+	};
+
+	const firebaseApp = initializeApp(firebaseCfg);
+	const firebaseAuth = getAuth();
+
+	domForm.addEventListener("change", () => {
+		domSubmit.disabled = !domForm.checkValidity();
+	});
+	domForm.addEventListener("submit", (event) => {
+		event.preventDefault();
+		register();
+	});
+
+
+	function register() {
+		createUserWithEmailAndPassword(firebaseAuth, domEmail.value, domPassword.value)
+			.then(async (userCredential) => {
+				const idTokenCred = await userCredential.user.getIdToken();
+				const jsonBody = JSON.stringify({ idToken: idTokenCred });
+
+
+				fetch("/users/session-register",
+					{
+						method: "POST",
+						headers:
+						{
+							"Content-Type": "application/json"
+						},
+						body: jsonBody
+					})
+					.then(() => {
+						window.location.assign("/users/logged-in-rides");
+					})
+					.catch((err) => {
+
+						console.log(err);
+
+						//status errors? - handle errors
+					});
+
+				domError.innerHTML = "";
+			})
+			.catch((error) => {
+				let errorMsg;
+				switch (error.code) {
+					case "auth/invalid-email":
+						errorMsg = "Invalid email address";
+						break;
+					case "auth/wrong-password":
+						errorMsg = "Invalid password";
+						break;
+					case "auth/user-not-found":
+						errorMsg = "User not found";
+						break;
+				}
+				domError.innerHTML = errorMsg;
+			});
+	}
+
+
+</script>

@@ -111,17 +111,15 @@ router.get('/session-login', (req, res) => {
 
 router.post('/session-login', create_cookie, (req, res, next) => {
     res.status(200);
-    res.redirect("/logged-in-rides");
-});
-
-router.get('/register', (req, res) => {
-    console.log("Render Sign Up");
-    res.render("register", { comment: "" });
+    res.redirect("/users/logged-in-rides");
 });
 
 router.post("/session-register", create, (req, res, next) => {
     res.status(201);
-    res.redirect("/rides/start-order");
+    res.redirect("/users/logged-in-rides");
+});
+router.get('/session-register', (req, res) => {
+    res.render("register");
 });
 
 router.get("/start-order", allowed, async (req, res, next) => {

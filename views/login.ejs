@@ -10,7 +10,7 @@
 		<input id="password" autocomplete="current-password" minlength="6" name="password" required
 			type="password"></input>
 	</fieldset> <input id="login" type="submit" value="Log in"></input>
-	<p><a href="/users/sign-up">Or sign up!</a></p>
+	<p><a href="/users/session-register">Or sign up!</a></p>
 </form>
 
 
@@ -39,7 +39,7 @@
 
 	const firebaseApp = initializeApp(firebaseCfg);
 	const firebaseAuth = getAuth();
-	// Listeners
+
 	domForm.addEventListener("change", () => {
 		domSubmit.disabled = !domForm.checkValidity();
 	});
@@ -51,11 +51,10 @@
 
 	function login() {
 		signInWithEmailAndPassword(firebaseAuth, domEmail.value, domPassword.value)
-			.then(async (userCredential) =>//signs in a user user the email and password from the request body
-			{
+			.then(async (userCredential) => {
 				const idTokenCred = await userCredential.user.getIdToken();
-				const jsonBody = JSON.stringify({ idToken: idTokenCred });//converts the id token to a json string
-				// take the session  cookie and implement function to create it
+				const jsonBody = JSON.stringify({ idToken: idTokenCred });
+
 
 				fetch("/users/session-login",
 					{
@@ -82,7 +81,12 @@
 					case "auth/invalid-email":
 						errorMsg = "Invalid email address";
 						break;
-					//take a look at more error codes
+					case "auth/wrong-password":
+						errorMsg = "Invalid password";
+						break;
+					case "auth/user-not-found":
+						errorMsg = "User not found";
+						break;
 				}
 				domError.innerHTML = errorMsg;
 			});
