@@ -215,24 +215,59 @@ router.post('/complete-order', allowed, async (req, res) => {
 
 });
 
+router.get('/complete-order', async (req, res) => {
 
-router.get('/view-tickets', allowed, async (req, res) => {
-    // Local Variables
+    res.render("complete-order");
+});
+
+
+router.get("/view-tickets", allowed, async (req, res, next) => {
     let collection = await db.collection("Tickets");
+    let tickets;
     let findID;
-    let result;
-    let document;
+   //let tickets = await collection.find({}).toArray();
+    let todayDate = new Date();
+    const formattedDate = formatDate(todayDate);
+
+    function formatDate(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
     fb.auth().getUser(res.locals.uid).then(async (userRecord) => {
         findID = userRecord.uid;
-        result = await collection.find({ "user": findID }).toArray();
+        tickets = await collection.find({ "user": findID }).toArray();
+        console.log(tickets);
+        let todayTicket;
+        
+        //let upcomingTickets = await tickets.find({ date: { $gt: formattedDate } }).toArray();
+        
+       // let pastTickets = await tickets.find({ date: { $lt: formattedDate } }).toArray();
+
+       let upcomingTickets = tickets.filter(ticket => ticket.date > formattedDate);
+        let pastTickets = tickets.filter(ticket => ticket.date < formattedDate);
+
+        for (let i = 0; i < tickets.length; i++) {
+            if (tickets[i].date == formattedDate) {
+                todayTicket = tickets[i];
+            }
+        }
+    
+        upcomingTickets = upcomingTickets.sort((a, b) => new Date(a.date) - new Date(b.date));
+        pastTickets = pastTickets.sort((a, b) => new Date(a.date) - new Date(b.date));
+        
         res.status(200);
-        res.render("-view-tickets", { tickets: result });
+        res.render("view-tickets", { today: todayTicket, upcoming: upcomingTickets, past: pastTickets });
+  
     })
         .catch((error) => {
             console.error(error);
             res.status(418).end();
         })
 });
+
 
 router.post('/logout', (req, res) => {//route for sign out
     const sessionCookie = req.cookies.session || "";//sets the session cookie with the request cookie session or an empty string

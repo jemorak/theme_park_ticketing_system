@@ -71,10 +71,7 @@ router.post('/ticket-order', async (req, res, next) => {
 });
 
 
-router.get('/complete-order', async (req, res) => {
 
-    res.render("complete-order");
-});
 
 router.post('/complete-order', async (req, res) => {
     console.log(req.body);
