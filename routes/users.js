@@ -201,10 +201,10 @@ router.post('/complete-order', allowed, async (req, res, next) => {
             let ticket = await collection.findOne({ user: userID, date: order.date });
             if (ticket != null) {
                 
-                res.redirect("/users/view-tickets");
+                res.render("/users/view-tickets");
             } else {
                 result = await collection.insertOne(order);
-                res.redirect("/users/view-tickets");
+                res.render("complete-order");
             }
         }
         catch (error) {
