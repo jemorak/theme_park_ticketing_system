@@ -9,9 +9,13 @@ import * as path from "path";
 import { fileURLToPath } from "url";
 import { createRequire } from "module";
 import { error } from "console";
+import { ObjectId } from 'mongodb';
 import fb from "../../fb/firebase.js";
 import db from '../../db/connection.js';
 
+const ticketCost = 20;
+let fastTrackCost = 0;
+let totalCost = 20;
 
 const require = createRequire(import.meta.url);
 
@@ -107,52 +111,87 @@ function allowed(req, res, next) {
 }
 
 //Middleware for This Router
-router.use(bodyParser.json());//uses body parser to parse the request body
+router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({ extended: true }));
-router.use(cookieParser());//uses cookie parser to parse the request cookies
-router.use(upload.array());//uses multer to parse the request body
+router.use(cookieParser());
+router.use(upload.array());
 
-//Routes
-// router.post('/session-login', create_cookie, (req, res) => {
-//     res.status(200).end();
-// });
 
-router.get('/', (req, res) => //route for the root
+router.get('/', (req, res) =>
 {
     console.log("Render");
-    res.redirect("/users/view-tickets");//redirects to the start-order page
+    res.redirect("/users/view-tickets");
 });
 
-router.get('/session-login', (req, res) => {//route for the sign in page
-    res.render("login");// renders the sign in page
+router.get('/session-login', (req, res) => {
+    res.render("login");
 });
 
-router.post('/session-login', create_cookie, (req, res) => { //route for the sign in in page using the sign_in function
-    res.status(200); //sets the status to 200
-    res.redirect("/rides/start-order");//redirects to the start-order page
+router.post('/session-login', create_cookie, (req, res) => {
+    res.status(200);
+    res.redirect("/logged-in-rides");
 });
 
-router.get('/register', (req, res) => {//route for sign up page
+router.get('/register', (req, res) => {
     console.log("Render Sign Up");
-    res.render("register", { comment: "" }); //renders the sign up page with an empty comment
+    res.render("register", { comment: "" });
 });
 
-router.post("/session-register", create, (req, res) => { //route for sign up page using the create function (creates user)
-    res.status(201);//sets the status to 201
-    res.redirect("/rides/start-order");//redirects to the start-order page
+router.post("/session-register", create, (req, res) => {
+    res.status(201);
+    res.redirect("/rides/start-order");
 });
 
-router.get("rides/start-order", allowed, (req, res) => {//route for the start-order page using the allowed function (checks if the user is allowed to access the page)
+router.get("/start-order", allowed, async (req, res) => {
     console.log("Render start-order");
+    let collection = await db.collection("Rides");
+    let results = await collection.find({}).toArray();
+    let userID;
 
-    admin.auth().getUser(res.locals.uid).then((userRecord) => { //gets the user record with user id from the response local uid
-        const email = userRecord.email; //sets the email with user record email
-
-        console.log("Render Start the order");
-        res.render("rides/start-order", { email: email }); // renders the start-order page with the email
+    fb.auth().getUser(res.locals.uid).then(async (userRecord)=> { 
+        userID = userRecord.uid;
+        res.render("start-order", { ticketCost: ticketCost, rides: results, user: userID });
     });
 });
 
+router.post('/ticket-order', async (req, res, next) => {
+
+    let newDoc = {};
+    let date = req.body.date;
+    let user = req.body.user;
+
+    let collection = await db.collection("Rides");
+    let rides = await collection.find({}).toArray();
+    let prices = [];
+    newDoc.ticket = [];
+
+    newDoc.user = user;
+
+    Object.keys(req.body.ride).forEach((key) => {
+        let price = 0;
+        for (let i = 0; i < rides.length; i++) {
+            if (rides[i]._id == key) {
+                fastTrackCost += rides[i].price;
+                totalCost += rides[i].price;
+                price = rides[i].price;
+                prices.push(rides[i].price);
+            }
+        }
+        newDoc.ticket.push({ "id": key, "name": req.body.ride[key], price: price, "used": false });
+    })
+
+    console.log(newDoc);
+
+    newDoc.date = date;
+    newDoc.totalCost = totalCost;
+
+
+    //console.log(rides[0].price);
+    let results = newDoc.ticket;
+
+    res.render("ticket-order", { ticket: newDoc, rides: results, date: date, ticketCost: ticketCost, fastTrackCost: fastTrackCost, totalCost: totalCost, prices: prices, user: user });
+
+});
 router.get("/logged-in-rides", async (req, res) => 
     {
             // local variables
@@ -162,14 +201,7 @@ router.get("/logged-in-rides", async (req, res) =>
     res.render("logged-in-rides", { rides: results });
 });
 
-router.get('/start-order', async (req, res) => {
-    let collection = await db.collection("Rides");
-    let results = await collection.find({}).toArray();
-    res.render("start-order", { ticketCost: ticketCost, rides: results });
 
-
-        res.render("You are logged in");
-    });
 
 
 router.post('/complete-order', allowed, async (req, res) => {
@@ -183,7 +215,7 @@ router.post('/complete-order', allowed, async (req, res) => {
     // Accessing individual rides within ticket object
     let ridesData = [];
     fb.auth().getUser(res.locals.uid).then(async (userRecord) => {
-        userID = userRecord.uid;
+        // userID = userRecord.uid;
         for (let i = 0; i < Object.keys(order.ticket).length; i++) {
             ridesData.push({
                 id: order.ticket[i].id,
@@ -199,7 +231,7 @@ router.post('/complete-order', allowed, async (req, res) => {
                 res.send("Ticket already exists for this date");
             } else {
     
-                order.user = userID;
+                // order.user = userID;
                 result = await collection.insertOne(order);
                 res.redirect("/view-tickets");
             }
@@ -215,9 +247,9 @@ router.post('/complete-order', allowed, async (req, res) => {
 
 });
 
-router.get('/complete-order', async (req, res) => {
+router.get('/complete-order', allowed, async (req, res) => {
 
-    res.render("complete-order");
+    res.redirect("/users/view-tickets");
 });
 
 
@@ -264,6 +296,136 @@ router.get("/view-tickets", allowed, async (req, res, next) => {
             console.error(error);
             res.status(418).end();
         })
+});
+
+router.post("/edit-ticket/:ticketId", allowed, async (req, res, next) => {
+
+    let collection = await db.collection("Tickets");
+    let rides = await db.collection("Rides");
+    let ridesResult = await rides.find({}).toArray();
+    let findId = new ObjectId(req.params.ticketId);
+    let ticketCost = 20;
+    let ridesIds = []
+    
+    const selectedRides = ridesIds;
+
+    try {
+        let ticket = await collection.findOne({ "_id": findId });
+
+        for (let i = 0; i < ticket.ticket.length; i++) {
+            ridesIds.push(ticket.ticket[i].id);
+        }
+
+        if (!ticket) {
+            res.send("Ticket not found");            
+        } else {
+            res.render("edit-ticket", { ticket: ticket, rides: ridesResult, selectedRides: selectedRides, standard: ticketCost });
+        }
+    }
+    catch (error) {
+        console.error("Error occured while trying to edit the ticket: ", error);
+        next(error);
+    }
+
+
+});
+
+router.get("/edit-ticket/:ticketId", async (req, res, next) => {
+    res.render("edit-ticket");
+});
+
+router.post("/update-ticket/:ticketId", allowed, async (req, res, next) => {
+
+    try {
+        let tickets = await db.collection("Tickets");
+        let ridesDb = await db.collection("Rides");
+        let rides = await ridesDb.find({}).toArray();
+        let date = req.body.date;
+
+        let totalCost = 20;
+        let prices = [];
+        let result;
+        let findId = new ObjectId(req.params.ticketId);
+        let newTickets = [];
+
+        console.log(req.body);
+        console.log(req.body.ride);
+
+        Object.keys(req.body.ride).forEach((key) => {
+            let price = 0;
+            for (let i = 0; i < rides.length; i++) {
+                if (rides[i]._id == key) {
+                    totalCost += rides[i].price;
+                    price = rides[i].price;
+                    prices.push(rides[i].price);
+                }
+            }
+            newTickets.push({ "id": key, "name": req.body.ride[key], price: price, "used": false });
+        })
+
+        let updateDoc = {
+            "$set": {
+                "date": date,
+                "ticket": newTickets,
+                "totalCost": totalCost
+            }
+        };
+
+        result = await tickets.updateOne(
+            { "_id": findId },
+            updateDoc
+        );
+
+
+
+        // let result = await collection.updateOne({ "_id": findId }, updateDoc);
+        res.redirect("/users/view-tickets");
+    } catch (error) {
+        console.error("There was an issue trying to update the ticket:", error);
+        res.status(500).send("Error occurred while processing the request.");
+    }
+
+});
+
+router.post("/use-ticket/:ticketId", allowed, async (req, res, next) => {
+    try {
+        let findRideTicketId = new ObjectId(req.params.ticketId);
+        let collection = await db.collection("Tickets");
+        let findTicketId = new ObjectId(req.body.id);
+        let result;
+
+        // console.log("findTicketId:", req.body.id);
+        // console.log("findRideTicketId:", req.params.ticketId);
+
+        let TICKET = await collection.findOne({ "_id": findTicketId });
+        // console.log("TICKET:", TICKET);
+
+        let updateDoc = {
+            "$set": {
+                "ticket.$[elem].used": 'true'
+            }
+        };
+        
+        result = await collection.updateOne(
+            { "_id": findTicketId },
+            updateDoc,
+            { arrayFilters: [{ "elem.id": findRideTicketId }] }
+        );
+        
+
+
+        // console.log("Update result:", result);
+        let updatedTicket = await collection.findOne({ "_id": findTicketId });
+        // console.log("Updated Ticket:", updatedTicket);
+
+
+        //console.log("Update result:", result);
+
+        res.redirect("/users/view-tickets");
+    } catch (error) {
+        console.error("Error occured when trying to use the ticket: ", error);
+        res.status(500).send("Error occurred while processing the request.");
+    }
 });
 
 

@@ -2,7 +2,7 @@
 <%- include('partials/user_nav.html') %>
 <h1>Update your ticket!</h1>
 
-<form action="/rides/update-ticket/<%= ticket._id %>" method="post">
+<form action="/users/update-ticket/<%= ticket._id %>" method="post">
     <section>
         <% let ticketCost = ticket.totalCost %>
         <hidden name="ticketId" value="<%= ticket._id %>">

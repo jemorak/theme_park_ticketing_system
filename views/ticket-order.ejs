@@ -6,12 +6,13 @@
 
     <p><strong>Ticket Price:</strong> £<%= ticketCost %></p>
     <p><strong>Fast Track Price:</strong> £<%= fastTrackCost %></p>
+    <input type="hidden" name="user" value="<%= user %>">
     <p><strong>Date:</strong><%= date %></p>
     <input type="hidden" name="date" value="<%= date %>">
     <br>
     <h2>Fast-Track Rides</h2>
     <ul>
-        <% for (let i=0; i < rides.length; i++) {%>      
+        <% for (let i=0; i < rides.length; i++) {%>   
             <input type="hidden" name="ticket[<%= i %>][id]" value="<%= rides[i].id %>">
             <input type="hidden" name="ticket[<%= i %>][name]" value="<%= rides[i].name %>">
             <input type="hidden" name="ticket[<%= i %>][price]" value="<%= rides[i].price %>">
