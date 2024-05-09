@@ -399,19 +399,37 @@ router.post("/use-ticket/:ticketId", allowed, async (req, res, next) => {
 
         let TICKET = await collection.findOne({ "_id": findTicketId });
         // console.log("TICKET:", TICKET);
-
-        let updateDoc = {
+        TICKET.ticket.forEach((element) => {
+            if (element.id == req.params.ticketId) {
+                element.used = true;
+            }
+        });
+        console.log (TICKET);
+        // let updateDoc = {
+        //     "$set": {
+        //         "ticket.$[elem].used": 'true'
+        //     }
+        // };
+        
+        // result = await collection.updateOne(
+        //     { "_id": findTicketId },
+        //     updateDoc,
+        //     { arrayFilters: [{ "elem.id": findRideTicketId }] }
+        // );
+        
+        const filter = {
+            "_id": findTicketId,
+            "ticket.id": req.params.ticketId
+        };
+        
+        const update = {
             "$set": {
-                "ticket.$[elem].used": 'true'
+                "ticket.$.used": true
             }
         };
         
-        result = await collection.updateOne(
-            { "_id": findTicketId },
-            updateDoc,
-            { arrayFilters: [{ "elem.id": findRideTicketId }] }
-        );
-        
+        result = await collection.updateOne(filter, update);
+        console.log(result);
 
 
         // console.log("Update result:", result);
