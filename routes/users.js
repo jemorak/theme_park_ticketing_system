@@ -70,8 +70,8 @@ function create(req, res, next) {
         .catch((error) => {
             const errorCode = error.code;
             const errorMessage = error.message;
-
             console.error("Failed to create user: " + req.body.email);
+            console.error("Error: " + error);
             res.status(409);
         });
 }

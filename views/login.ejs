@@ -69,8 +69,7 @@
 						window.location.assign("/users/logged-in-rides");
 					})
 					.catch((err) => {
-						console.log(err);
-						//status errors? - handle errors
+						console.error('Error:', error.message);
 					});
 
 				domError.innerHTML = "";
@@ -86,6 +85,9 @@
 						break;
 					case "auth/user-not-found":
 						errorMsg = "User not found";
+						break;
+					default:
+						errorMsg = "An error occurred. Please try again later";
 						break;
 				}
 				domError.innerHTML = errorMsg;

@@ -1,16 +1,17 @@
 <!DOCTYPE html>
 <h1>Register a new account!</h1>
-<form id="register-form"  class="register-user-form" method="post" >	
-	<fieldset class="register-user-form-area">	   
-		<label for="email">Email Address</label>	   
-		<input id="email" autocomplete="email" name="email" required type="text"></input>	
-	</fieldset>	
-	<fieldset class="register-user-form-area">	   
-		<label for="password">Password</label>  
-		<input id="password" autocomplete="current-password" minlength="6" name="password" required type="password"></input>	   
-		<p>Password must be at least 6 characters</p>	
-	</fieldset>	
-		<input id="register"  type="submit" value="Register"></input>
+<form id="register-form" class="register-user-form" method="post">
+	<fieldset class="register-user-form-area">
+		<label for="email">Email Address</label>
+		<input id="email" autocomplete="email" name="email" required type="text"></input>
+	</fieldset>
+	<fieldset class="register-user-form-area">
+		<label for="password">Password</label>
+		<input id="password" autocomplete="current-password" minlength="6" name="password" required
+			type="password"></input>
+		<p>Password must be at least 6 characters</p>
+	</fieldset>
+	<input id="register" type="submit" value="Register"></input>
 </form>
 
 <script type="module">
@@ -68,10 +69,7 @@
 						window.location.assign("/users/logged-in-rides");
 					})
 					.catch((err) => {
-
-						console.log(err);
-
-						//status errors? - handle errors
+						console.error('Error:', error.message);
 					});
 
 				domError.innerHTML = "";
@@ -81,12 +79,15 @@
 				switch (error.code) {
 					case "auth/invalid-email":
 						errorMsg = "Invalid email address";
+						break;	
+					case "auth/email-already-in-use":
+						errorMsg = "Email address is already in use";
 						break;
-					case "auth/wrong-password":
-						errorMsg = "Invalid password";
-						break;
-					case "auth/user-not-found":
-						errorMsg = "User not found";
+					case "auth/weak-password":
+						errorMsg = "Password is too weak";
+						break;					
+					default:
+						errorMsg = "An error occurred. Please try again later";
 						break;
 				}
 				domError.innerHTML = errorMsg;
