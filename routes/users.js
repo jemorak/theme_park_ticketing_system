@@ -194,14 +194,14 @@ router.post('/complete-order', allowed, async (req, res) => {
         }
         try {
             order.ticket = ridesData;
-            let ticket = await collection.findOne({ "date": order.date });
+            let ticket = await collection.findOne({user: userID, date: order.date});
             if (ticket != null) {
                 res.send("Ticket already exists for this date");
             } else {
     
                 order.user = userID;
                 result = await collection.insertOne(order);
-                res.redirect("/rides/view-tickets");
+                res.redirect("/view-tickets");
             }
         }
         catch (error) {
