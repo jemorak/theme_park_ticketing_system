@@ -72,17 +72,6 @@ app.get("/", async (req, res) =>{
 
 
 
-// app.get("/rides", (req, res) => {
-//     let fakeDatabase = [
-//         {name: "The Great Escape", price: 5},
-//         {name: "The Tower of Terror", price: 10},
-//         {name: "The Great White", price: 15}
-//     ];
-//     res.render("rides", {data: fakeDatabase});
-
-// }
-// )
-
 //---------------- ERROR MIDDLEWARE ----------------
 
 app.get("/not-user",(req, res, next) => 
