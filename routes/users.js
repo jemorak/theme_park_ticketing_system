@@ -31,7 +31,7 @@ const firebaseConfig = {
 
 //Router objects
 const firebaseApp = initializeApp(firebaseConfig);
-const firebaseAuth = getAuth();
+const firebaseAuth = getAuth(firebaseApp);
 const router = express.Router();
 const upload = multer();
 

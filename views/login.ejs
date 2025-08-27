@@ -38,7 +38,7 @@
 	};
 
 	const firebaseApp = initializeApp(firebaseCfg);
-	const firebaseAuth = getAuth();
+	const firebaseAuth = getAuth(firebaseApp);
 
 	domForm.addEventListener("change", () => {
 		domSubmit.disabled = !domForm.checkValidity();

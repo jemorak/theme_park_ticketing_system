@@ -21,7 +21,7 @@ const firebaseCfg = {
 };
 
 const firebaseApp = initializeApp(firebaseCfg);
-const firebaseAuth = getAuth();
+const firebaseAuth = getAuth(firebaseApp);
 // Listeners
 domForm.addEventListener("change", () =>
     {
