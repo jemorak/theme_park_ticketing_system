@@ -101,7 +101,6 @@ router.use(upload.array());
 
 
 router.get('/', (req, res) => {
-    console.log("Render");
     res.redirect("/users/view-tickets");
 });
 
@@ -123,7 +122,6 @@ router.get('/session-register', (req, res) => {
 });
 
 router.get("/start-order", allowed, async (req, res, next) => {
-    console.log("Render start-order");
     let collection = await db.collection("Rides");
     let results = await collection.find({}).toArray();
     let userID;
